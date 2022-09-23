@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.dao.UserDao;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.validator.UserValidator;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
