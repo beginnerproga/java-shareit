@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 @Repository
 public class ItemDaoImpl implements ItemDao {
-    HashMap<Long, Item> items = new HashMap<>();
-    long counts = 1;
+    private final HashMap<Long, Item> items = new HashMap<>();
+    private long counts = 1;
 
     @Override
     public Item addItem(Item item) {

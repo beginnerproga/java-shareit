@@ -11,7 +11,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dao.UserDao;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +18,8 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ItemServiceImpl implements ItemService {
-    ItemDao itemDao;
-    UserDao userDao;
+   private final ItemDao itemDao;
+   private final UserDao userDao;
 
     @Autowired
     public ItemServiceImpl(ItemDao itemDao, UserDao userDao) {

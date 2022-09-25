@@ -11,8 +11,8 @@ import java.util.List;
 @Repository
 @Slf4j
 public class UserDaoImpl implements UserDao {
-    HashMap<Long, User> users = new HashMap<>();
-    long counts = 1;
+   private final HashMap<Long, User> users = new HashMap<>();
+   private long counts = 1;
 
     @Override
     public User addUser(User user) {
