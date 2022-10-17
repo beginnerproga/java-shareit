@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
@@ -32,6 +34,7 @@ public class BookingServiceImpl implements BookingService {
         this.itemRepository = itemRepository;
     }
 
+    @Transactional
     @Override
     public BookingDto addBooking(BookingDto bookingDto, Long userId) {
         log.info("Received request to add booking from user with user's id={}", userId);
@@ -52,6 +55,7 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDto(booking);
     }
 
+    @Transactional
     @Override
     public BookingInfoDto acceptBooking(Long bookingId, boolean approved, Long userId) {
         log.info("Received request to change status of  booking with booking's id = " + bookingId + " from user with user's id={}", userId);
