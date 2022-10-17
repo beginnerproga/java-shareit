@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 @Data
 public class ItemDto {
+
     private long id;
     @NotNull(groups = {Create.class})
     @NotBlank(groups = {Create.class})
