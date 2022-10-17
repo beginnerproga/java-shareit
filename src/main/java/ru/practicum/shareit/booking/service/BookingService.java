@@ -5,7 +5,7 @@ import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import java.util.List;
 
 public interface BookingService {
-    BookingDto addBooking(BookingDto bookingDto, Long userId);
+    BookingInfoDto addBooking(BookingDto bookingDto, Long userId);
 
     BookingInfoDto acceptBooking(Long bookingId, boolean approved, Long userId);
 

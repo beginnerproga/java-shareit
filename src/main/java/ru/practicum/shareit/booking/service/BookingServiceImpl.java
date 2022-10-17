@@ -36,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto addBooking(BookingDto bookingDto, Long userId) {
+    public BookingInfoDto addBooking(BookingDto bookingDto, Long userId) {
         log.info("Received request to add booking from user with user's id={}", userId);
         if (userId == null)
             throw new UserIdWasNotTransferredException("User's id is null");
@@ -52,7 +52,7 @@ public class BookingServiceImpl implements BookingService {
             throw new OwnerCantBookingItemException("Owner can't book his item.");
         Booking booking = BookingMapper.toBooking(bookingDto, item, user, Status.WAITING);
         bookingRepository.save(booking);
-        return BookingMapper.toBookingDto(booking);
+        return BookingMapper.toBookingInfoDto(booking);
     }
 
     @Transactional
