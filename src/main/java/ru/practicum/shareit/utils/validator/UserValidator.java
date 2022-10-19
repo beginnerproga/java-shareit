@@ -1,4 +1,4 @@
-package ru.practicum.shareit.validator;
+package ru.practicum.shareit.utils.validator;
 
 import ru.practicum.shareit.user.model.User;
 

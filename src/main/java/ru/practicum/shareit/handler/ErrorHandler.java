@@ -6,17 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exceptions.SameEmailException;
-import ru.practicum.shareit.exceptions.UserIdWasNotTransferredException;
-import ru.practicum.shareit.exceptions.UserNotFoundException;
-import ru.practicum.shareit.exceptions.UserNotHaveAccessException;
+import ru.practicum.shareit.booking.controller.BookingController;
+import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.user.controller.UserController;
-
 import java.util.Map;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {UserController.class, ItemController.class})
+@RestControllerAdvice(assignableTypes = {UserController.class, ItemController.class, BookingController.class})
 public class ErrorHandler {
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
@@ -28,8 +25,17 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler(value = {SameEmailException.class})
-    public ResponseEntity<Map<String, String>> handleNotFoundException(final SameEmailException e) {
+    @ExceptionHandler(value = {ItemIsNotAvailableException.class, CommentException.class, StatusAlreadySetException.class})
+    public ResponseEntity<Map<String, String>> handleBadRequest(final RuntimeException e) {
+        log.error("Server returned HttpCode 400. {}", e.getMessage(), e);
+        return new ResponseEntity<>(
+                Map.of("error", e.getMessage()),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(value = {SameEmailException.class, IncorrectStateException.class})
+    public ResponseEntity<Map<String, String>> handleInternalServerErrorException(final RuntimeException e) {
         log.error("Server returned HttpCode 500. {}", e.getMessage(), e);
         return new ResponseEntity<>(
                 Map.of("error", e.getMessage()),
@@ -37,7 +43,8 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler(value = {UserNotFoundException.class, UserNotHaveAccessException.class})
+    @ExceptionHandler(value = {UserNotFoundException.class, UserNotHaveAccessException.class, ItemNotFoundException.class,
+            BookingNotFoundException.class, OwnerCantBookingItemException.class})
     public ResponseEntity<Map<String, String>> handleNotFoundException(final RuntimeException e) {
         log.error("Server returned HttpCode 404. {}", e.getMessage(), e);
         return new ResponseEntity<>(
@@ -47,7 +54,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler(value = {UserIdWasNotTransferredException.class})
-    public ResponseEntity<Map<String, String>> handleNotFoundException(final UserIdWasNotTransferredException e) {
+    public ResponseEntity<Map<String, String>> handleBadRequestException(final UserIdWasNotTransferredException e) {
         log.error("Server returned HttpCode 400. {}", e.getMessage(), e);
         return new ResponseEntity<>(
                 Map.of("error", e.getMessage()),

@@ -3,69 +3,80 @@ package ru.practicum.shareit.user.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.SameEmailException;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.dao.UserDao;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.validator.UserValidator;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao) {
-        this.userDao = userDao;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     public List<UserDto> getUsers() {
         log.info("Received request to get all users");
-        return userDao.getUsers().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        return userRepository.findAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override
-    public UserDto getUserById(long userId) {
+    public UserDto getUserById(Long userId) {
         log.info("Received request to get a user by userId={}", userId);
-        User result = userDao.getUserById(userId);
-        if (result == null)
+        User result = userRepository.findById(userId).orElseThrow(() -> {
             throw new UserNotFoundException("User with id=" + userId + " not found");
+        });
         return UserMapper.toUserDto(result);
     }
 
+    @Transactional
     @Override
-    public void deleteUser(long userId) {
+    public void deleteUser(Long userId) {
         log.info("Received request to delete a user by userId={}", userId);
-        User result = userDao.getUserById(userId);
-        if (result == null)
-            throw new UserNotFoundException("User with id=" + userId + " not found");
-        userDao.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 
+    @Transactional
     @Override
     public UserDto addUser(UserDto userDto) {
         log.info("Received request to add user");
         User user = UserMapper.toUser(userDto);
-        if (UserValidator.validateForEmail(userDao.getUsers(), user))
-            throw new SameEmailException("Same email created");
-        userDao.addUser(user);
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new SameEmailException("user with this email already created");
+        }
         return UserMapper.toUserDto(user);
     }
 
+    @Transactional
     @Override
-    public UserDto updateUser(UserDto userDto, long userId) {
+    public UserDto updateUser(UserDto userDto, Long userId) {
         log.info("Received request to update user");
-        User check = userDao.getUserById(userId);
-        if (check == null)
+        User check = userRepository.findById(userId).orElseThrow(() -> {
             throw new UserNotFoundException("User with id=" + userId + " not found");
-        if (userDto.getEmail() != null && UserValidator.validateForEmail(userDao.getUsers(), UserMapper.toUser(userDto)))
-            throw new SameEmailException("Same email created");
-        User result = userDao.updateUser(UserMapper.toUser(userDto), userId);
-        return UserMapper.toUserDto(result);
+        });
+        User result = UserMapper.toUser(userDto);
+        if (result.getEmail() != null && !result.getEmail().isBlank())
+            check.setEmail(result.getEmail());
+        if (result.getName() != null && !result.getName().isBlank())
+            check.setName(result.getName());
+        try {
+            userRepository.save(check);
+            return UserMapper.toUserDto(check);
+        } catch (Exception e) {
+            throw new SameEmailException("user with this email already created");
+        }
     }
 }

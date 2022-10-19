@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.Update;
+
 import java.util.List;
 
 /**
@@ -43,7 +44,6 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@Validated({Update.class}) @RequestBody UserDto userDto, @PathVariable long userId) {
-
         return userService.updateUser(userDto, userId);
     }
 
