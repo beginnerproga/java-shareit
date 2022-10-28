@@ -80,7 +80,7 @@ public class BookingServiceIntegrationTest {
     @Test
     public void getBookingsForBookerGoodTest() {
         bookingService.acceptBooking(booking1.getId(), true, user1.getId());
-        List<BookingInfoDto> bookingInfoDtos = bookingService.getBookingsForBooker(2L, "PAST", 0, 10);
+        List<BookingInfoDto> bookingInfoDtos = bookingService.getBookingsForBooker(2L, "ALL", 0, 10);
         assertEquals(1, bookingInfoDtos.size());
         bookingInfoDtos.get(0).setStart(bookingInfoDtos.get(0).getStart().truncatedTo(ChronoUnit.SECONDS));
         bookingInfoDtos.get(0).setEnd(bookingInfoDtos.get(0).getEnd().truncatedTo(ChronoUnit.SECONDS));
