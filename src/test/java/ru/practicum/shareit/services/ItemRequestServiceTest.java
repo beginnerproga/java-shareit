@@ -45,7 +45,7 @@ public class ItemRequestServiceTest {
         User user1 = new User(1, "Nikita", "nikita@mail.ru");
         user2 = new User(2, "Qrew", "re@mail.ru");
         item1 = new Item(1, "qerq", "qwrqeqw", true, user1);
-        itemRequest = new ItemRequest(1, "fwefw", user2, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+        itemRequest = new ItemRequest(1, "fwefw", user2, LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         itemRequests = new ArrayList<>();
         itemRequests.add(itemRequest);
     }
@@ -57,7 +57,7 @@ public class ItemRequestServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user2));
         when(itemRequestRepository.save(itemRequest)).thenReturn(itemRequest);
         ItemRequestInfoDto result = itemRequestService.addItemRequest(itemRequestDto, userId);
-        result.setCreated(result.getCreated().truncatedTo(ChronoUnit.SECONDS));
+        result.setCreated(result.getCreated().truncatedTo(ChronoUnit.MINUTES));
         assertEquals(ItemRequestMapper.toItemRequestInfoDto(itemRequest, new ArrayList<>()), result);
         verify(userRepository,times(1)).findById(userId);
         verify(itemRequestRepository,times(1)).save(any(ItemRequest.class));

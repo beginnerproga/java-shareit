@@ -68,6 +68,32 @@ public class BookingServiceIntegrationTest {
         bookingInfoDtos.get(0).setStart(bookingInfoDtos.get(0).getStart().truncatedTo(ChronoUnit.SECONDS));
         bookingInfoDtos.get(0).setEnd(bookingInfoDtos.get(0).getEnd().truncatedTo(ChronoUnit.SECONDS));
         assertEquals(BookingMapper.toBookingInfoDto(booking1), bookingInfoDtos.get(0));
+        List<BookingInfoDto> bookingInfoDtos1 = bookingService.getBookingsForOwner(1L, "PAST", 0, 10);
+        assertEquals(1, bookingInfoDtos1.size());
+        List<BookingInfoDto> bookingInfoDtos2 = bookingService.getBookingsForOwner(1L, "FUTURE", 0, 10);
+        assertEquals(0, bookingInfoDtos2.size());
+        List<BookingInfoDto> bookingInfoDtos3 = bookingService.getBookingsForOwner(1L, "REJECTED", 0, 10);
+        assertEquals(0, bookingInfoDtos3.size());
 
     }
+
+    @Test
+    public void getBookingsForBookerGoodTest() {
+        bookingService.acceptBooking(booking1.getId(), true, user1.getId());
+        List<BookingInfoDto> bookingInfoDtos = bookingService.getBookingsForBooker(2L, "PAST", 0, 10);
+        assertEquals(1, bookingInfoDtos.size());
+        bookingInfoDtos.get(0).setStart(bookingInfoDtos.get(0).getStart().truncatedTo(ChronoUnit.SECONDS));
+        bookingInfoDtos.get(0).setEnd(bookingInfoDtos.get(0).getEnd().truncatedTo(ChronoUnit.SECONDS));
+        assertEquals(BookingMapper.toBookingInfoDto(booking1), bookingInfoDtos.get(0));
+        List<BookingInfoDto> bookingInfoDtos1 = bookingService.getBookingsForBooker(2L, "PAST", 0, 10);
+        assertEquals(1, bookingInfoDtos1.size());
+        List<BookingInfoDto> bookingInfoDtos2 = bookingService.getBookingsForBooker(2L, "FUTURE", 0, 10);
+        assertEquals(0, bookingInfoDtos2.size());
+        List<BookingInfoDto> bookingInfoDtos3 = bookingService.getBookingsForBooker(2L, "REJECTED", 0, 10);
+        assertEquals(0, bookingInfoDtos3.size());
+
+
+
+    }
+
 }
