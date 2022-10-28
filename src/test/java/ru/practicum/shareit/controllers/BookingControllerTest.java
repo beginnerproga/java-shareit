@@ -190,6 +190,29 @@ public class BookingControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+        BookingDto bookingDto1 = new BookingDto(1, 1, LocalDateTime.now().plusHours(1).truncatedTo(ChronoUnit.SECONDS), LocalDateTime.now().plusYears(50).truncatedTo(ChronoUnit.SECONDS));
+        BookingInfoDto bookingInfoDto1 = new BookingInfoDto(bookingDto.getId(), bookingDto.getStart(), bookingDto.getEnd(), null, null, Status.WAITING);
+
+        when(bookingService.addBooking(bookingDto1, userId)).thenReturn(bookingInfoDto1);
+        mvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .content(mapper.writeValueAsString(bookingDto1))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+        BookingDto bookingDto2 = new BookingDto(1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusHours(1).truncatedTo(ChronoUnit.SECONDS));
+        BookingInfoDto bookingInfoDto2 = new BookingInfoDto(bookingDto.getId(), bookingDto.getStart(), bookingDto.getEnd(), null, null, Status.WAITING);
+
+        when(bookingService.addBooking(bookingDto2, userId)).thenReturn(bookingInfoDto2);
+        mvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .content(mapper.writeValueAsString(bookingDto2))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
 
         verify(bookingService, times(0)).addBooking(bookingDto, userId);
 

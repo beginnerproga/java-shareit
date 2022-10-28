@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.practicum.shareit.exceptions.UserIdWasNotTransferredException;
+import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -58,5 +61,12 @@ public class ItemRequestIntegrationTest {
         assertEquals(1, itemRequestInfoDto.size());
         itemRequestInfoDto.get(0).setCreated(itemRequestInfoDto.get(0).getCreated().truncatedTo(ChronoUnit.SECONDS));
         assertEquals(ItemRequestMapper.toItemRequestInfoDto(itemRequest1, Collections.singletonList(item1)), itemRequestInfoDto.get(0));
+    }
+
+    @Test
+    public void addItemRequestBadTest() {
+        assertThrows(UserIdWasNotTransferredException.class, () -> itemRequestService.addItemRequest(new ItemRequestDto(1, "qwe"), null));
+        assertThrows(UserNotFoundException.class, () -> itemRequestService.addItemRequest(new ItemRequestDto(1, "qwe"), 6L));
+
     }
 }

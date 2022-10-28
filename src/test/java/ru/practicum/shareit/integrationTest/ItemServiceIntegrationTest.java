@@ -11,6 +11,8 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exceptions.UserIdWasNotTransferredException;
+import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentInfoDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -27,8 +29,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
@@ -69,6 +70,18 @@ public class ItemServiceIntegrationTest {
         assertEquals(1, itemInfoDtos.size());
         assertEquals(ItemMapper.toItemInfoDto(item1, null, null, new ArrayList<>()), itemInfoDtos.get(0));
 
+    }
+
+    @Test
+    public void addItemBadTest() {
+        assertThrows(UserNotFoundException.class, () -> itemService.addItem(new ItemDto("dew", "we", true), 5L));
+        assertThrows(UserIdWasNotTransferredException.class, () -> itemService.addItem(new ItemDto("dew", "we", true), null));
+    }
+
+    @Test
+    public void updateItemBadTest() {
+        assertThrows(UserNotFoundException.class, () -> itemService.updateItem(new ItemDto("dew", "we", true), 1L, 5L));
+        assertThrows(UserIdWasNotTransferredException.class, () -> itemService.updateItem(new ItemDto("dew", "we", true), 1L, null));
     }
 
     @Test

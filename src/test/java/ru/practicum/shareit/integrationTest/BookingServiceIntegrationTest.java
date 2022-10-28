@@ -12,6 +12,8 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exceptions.UserIdWasNotTransferredException;
+import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -24,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -91,8 +94,16 @@ public class BookingServiceIntegrationTest {
         assertEquals(0, bookingInfoDtos2.size());
         List<BookingInfoDto> bookingInfoDtos3 = bookingService.getBookingsForBooker(2L, "REJECTED", 0, 10);
         assertEquals(0, bookingInfoDtos3.size());
+        assertThrows(UserIdWasNotTransferredException.class, () -> bookingService.getBookingsForBooker(null, "ALL", 0, 10));
+        assertThrows(UserNotFoundException.class, () -> bookingService.getBookingsForBooker(55L, "ALL", 0, 10));
 
 
+    }
+
+    @Test
+    public void addBookingBadTest() {
+        assertThrows(UserIdWasNotTransferredException.class, () -> bookingService.addBooking(BookingMapper.toBookingDto(booking1), null));
+        assertThrows(UserNotFoundException.class, () -> bookingService.addBooking(BookingMapper.toBookingDto(booking1), 55L));
 
     }
 
