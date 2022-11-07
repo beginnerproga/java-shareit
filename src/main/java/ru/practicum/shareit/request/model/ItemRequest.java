@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +28,6 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id")
     private User user;
 
-    @Transient
+    @Column(name = "created")
     private LocalDateTime created;
 }

@@ -13,12 +13,15 @@ import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.Update;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
  */
 @RestController
+@Validated
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
@@ -29,8 +32,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemInfoDto> getItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId) {
-        return itemService.getItems(userId);
+    public List<ItemInfoDto> getItems(@RequestHeader(value = "X-Sharer-User-Id", required = false) Long userId, @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from, @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+        return itemService.getItems(userId,from,size);
     }
 
 
@@ -58,8 +61,8 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestParam String text) {
-        return itemService.searchItems(text);
+    public List<ItemDto> searchItems(@RequestParam String text, @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from, @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+        return itemService.searchItems(text, from, size);
     }
 
 }

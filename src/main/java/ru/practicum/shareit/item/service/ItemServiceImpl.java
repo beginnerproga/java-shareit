@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
@@ -18,6 +19,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -34,24 +37,27 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Autowired
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository, ItemRequestRepository itemRequestRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.commentRepository = commentRepository;
+        this.itemRequestRepository = itemRequestRepository;
     }
 
     @Override
-    public List<ItemInfoDto> getItems(Long userId) {
+    public List<ItemInfoDto> getItems(Long userId, int from, int size) {
         log.info("Received request to get all items from user with user's id={}", userId);
         if (userId == null)
             throw new UserIdWasNotTransferredException("User's id is null");
         User user = userRepository.findById(userId).orElseThrow(() -> {
             throw new UserNotFoundException("User with id=" + userId + " not found");
         });
-        List<Item> items = itemRepository.findByOwnerOrderById(user);
+        int page = from / size;
+        List<Item> items = itemRepository.findByOwnerOrderById(user, PageRequest.of(page, size)).getContent();
         List<ItemInfoDto> itemInfoDto = new ArrayList<>();
         for (Item item : items) {
             List<Comment> comments = commentRepository.findByItemOrderById(item);
@@ -90,7 +96,15 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId).orElseThrow(() -> {
             throw new UserNotFoundException("User with id=" + userId + " not found");
         });
-        Item item = ItemMapper.toItem(itemDto, user);
+        Item item;
+        if (itemDto.getRequestId() == null)
+            item = ItemMapper.toItem(itemDto, user, null);
+        else {
+            ItemRequest itemRequest = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() -> {
+                throw new ItemRequestNotFoundException("Item request with id = " + itemDto.getRequestId() + " not found");
+            });
+            item = ItemMapper.toItem(itemDto, user, itemRequest);
+        }
         itemRepository.save(item);
         return ItemMapper.toItemDto(item);
     }
@@ -101,13 +115,13 @@ public class ItemServiceImpl implements ItemService {
         log.info("Received request to update item from user with user's id={}", userId);
         if (userId == null)
             throw new UserIdWasNotTransferredException("User's id is null");
-        userRepository.findById(userId).orElseThrow(() -> {
+        User user = userRepository.findById(userId).orElseThrow(() -> {
             throw new UserNotFoundException("User with id=" + userId + " not found");
         });
         if (itemRepository.getReferenceById(itemId).getOwner().getId() != userId)
             throw new UserNotHaveAccessException("User with id=" + userId + " doesn't have access");
 
-        Item item = ItemMapper.toItem(itemDto, userRepository.getReferenceById(userId));
+        Item item = ItemMapper.toItem(itemDto, user, null);
         Item result = itemRepository.getReferenceById(itemId);
         if (item.getName() != null && !item.getName().isBlank())
             result.setName(item.getName());
@@ -120,11 +134,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> searchItems(String text, int from, int size) {
         log.info("Received request to search all items with similar text");
+        int page = from / size;
         if (text.equals(""))
             return new ArrayList<>();
-        return itemRepository.search(text).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        return itemRepository.search(text, PageRequest.of(page, size)).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
 
     }
 
@@ -147,4 +162,5 @@ public class ItemServiceImpl implements ItemService {
         return CommentMapper.toCommentInfoDto(comment);
 
     }
+
 }

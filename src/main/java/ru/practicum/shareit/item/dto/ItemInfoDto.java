@@ -18,6 +18,13 @@ public class ItemInfoDto {
     private ItemInfoDto.ItemBookingDto nextBooking;
     private List<CommentInfoDto> comments;
 
+    public ItemInfoDto(Long id, String name, String description, Boolean available) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+    }
+
     public static class ItemBookingDto {
         public Long id;
         public Long bookerId;

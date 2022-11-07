@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @Transactional(readOnly = true)
+@Getter
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
@@ -69,7 +71,7 @@ public class UserServiceImpl implements UserService {
         });
         User result = UserMapper.toUser(userDto);
         if (result.getEmail() != null && !result.getEmail().isBlank())
-            check.setEmail(result.getEmail());
+        check.setEmail(result.getEmail());
         if (result.getName() != null && !result.getName().isBlank())
             check.setName(result.getName());
         try {
